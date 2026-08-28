@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HROO HRIS · FY2026 KPI Tracker Hub</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;font-size:12px;color:#1a1a1a;background:#f0f4f8;min-height:100vh}
+
+/* PAGE ROUTING */
+.page{display:none;padding:24px 20px 40px}
+.page.active{display:block}
+
+/* =========================================================
+   HOME SCREEN
+   ========================================================= */
+#home{max-width:1000px;margin:0 auto}
+.home-hero{background:linear-gradient(135deg,#003366 0%,#0055aa 100%);color:#fff;border-radius:12px;padding:36px 32px;margin-bottom:24px;text-align:center;box-shadow:0 4px 16px rgba(0,51,102,.15)}
+.home-hero .agency{font-size:11px;font-weight:700;letter-spacing:2px;opacity:.85;margin-bottom:8px;text-transform:uppercase}
+.home-hero h1{font-size:28px;font-weight:700;margin-bottom:6px;line-height:1.2}
+.home-hero p{font-size:13px;opacity:.9}
+.home-hero .fy-badge{display:inline-block;background:rgba(255,255,255,.18);padding:4px 14px;border-radius:20px;font-size:11px;font-weight:700;margin-top:12px;border:1px solid rgba(255,255,255,.25)}
+
+.home-intro{background:#fff;border-radius:8px;padding:14px 20px;margin-bottom:20px;border-left:4px solid #003366;font-size:12px;color:#333;line-height:1.5}
+.home-intro strong{color:#003366}
+
+.home-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:24px}
+.tracker-card{background:#fff;border-radius:10px;border:1px solid #ddd;padding:20px 22px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.tracker-card::before{content:"";position:absolute;top:0;left:0;right:0;height:5px;background:#003366}
+.tracker-card.card-lead::before{background:#7b1f1a}
+.tracker-card:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.1);border-color:#003366}
+.tracker-card.card-lead:hover{border-color:#7b1f1a}
+.tc-badge{display:inline-block;background:#003366;color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:14px;margin-bottom:12px;letter-spacing:.5px;align-self:flex-start}
+.tracker-card.card-lead .tc-badge{background:#7b1f1a}
+.tc-role{font-size:16px;font-weight:700;color:#1a1a1a;margin-bottom:6px}
+.tc-desc{font-size:11px;color:#666;line-height:1.5;margin-bottom:14px;flex:1}
+.tc-stats{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.tc-stat{background:#f0f4f8;font-size:10px;font-weight:700;color:#003366;padding:4px 10px;border-radius:12px}
+.tracker-card.card-lead .tc-stat{background:#fbf0ee;color:#7b1f1a}
+.tc-open{background:#003366;color:#fff;border:none;font-size:11px;font-weight:700;padding:9px 16px;border-radius:6px;cursor:pointer;transition:background .15s;text-align:center;letter-spacing:.3px}
+.tracker-card.card-lead .tc-open{background:#7b1f1a}
+.tracker-card:hover .tc-open{background:#002347}
+.tracker-card.card-lead:hover .tc-open{background:#5c1713}
+
+.home-footer{background:#fff;border-radius:8px;padding:14px 18px;text-align:center;font-size:10px;color:#888;border:1px solid #eee}
+
+/* =========================================================
+   TRACKER PAGES — SHARED (uses CSS vars)
+   ========================================================= */
+.tracker{max-width:860px;margin:0 auto}
+.tracker-page{--primary:#003366;--chk-bg:#f0f4fa;--chk-border:#dce4f0;--chk-hover:#e8f0fa;--freq-bg:#e9eef5;--freq-color:#003366}
+.tracker-page.tracker-lead{--primary:#7b1f1a;--chk-bg:#fbf0ee;--chk-border:#f0d5d1;--chk-hover:#f8e3e1;--freq-bg:#f8e3e1;--freq-color:#7b1f1a}
+
+.page-nav{max-width:860px;margin:0 auto 12px;display:flex;justify-content:space-between;gap:10px}
+.btn-nav{background:#fff;border:1px solid #ccc;color:#333;font-size:11px;font-weight:700;padding:8px 16px;border-radius:20px;cursor:pointer;transition:all .15s}
+.btn-nav:hover{background:#f0f0f0;border-color:#003366;color:#003366}
+.tracker-lead .btn-nav:hover{border-color:#7b1f1a;color:#7b1f1a}
+
+.top-bar{background:var(--primary);color:#fff;border-radius:8px;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px}
+.top-bar h2{font-size:16px;font-weight:700}
+.top-bar span{font-size:10px;opacity:.85;display:block;margin-top:3px}
+.btn-print{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:11px;font-weight:700;padding:7px 16px;border-radius:20px;cursor:pointer;white-space:nowrap;transition:background .15s}
+.btn-print:hover{background:rgba(255,255,255,.3)}
+
+.lead-note{background:#fff3cd;border-left:4px solid #f0a500;padding:10px 16px;border-radius:6px;margin-bottom:20px;font-size:11px;color:#7a5c00;line-height:1.5}
+.lead-note strong{color:#5c4400}
+
+/* PROGRESS SUMMARY */
+.progress-summary{background:#fff;border-radius:8px;padding:16px 20px;margin-bottom:20px;border:1px solid #ddd}
+.progress-summary h4{font-size:11px;font-weight:700;color:var(--primary);margin-bottom:10px}
+.prog-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px}
+.prog-item{background:#f8f9fa;border-radius:6px;padding:10px 12px;text-align:center;border:1px solid #eee}
+.prog-item.prog-fs{background:#fffdf5;border-color:#ffe8a0}
+.prog-item.prog-exc{background:#f6fff8;border-color:#a0e0b0}
+.prog-item .pi-num{font-size:20px;font-weight:700;color:var(--primary)}
+.prog-item.prog-fs .pi-num{color:#856404}
+.prog-item.prog-exc .pi-num{color:#155724}
+.prog-item .pi-label{font-size:9px;color:#666;margin-top:2px;font-weight:700}
+.prog-bar{height:6px;background:#e0e0e0;border-radius:3px;margin-top:6px;overflow:hidden}
+.prog-bar-fill{height:100%;border-radius:3px;transition:width .3s;background:var(--primary)}
+.prog-bar-fill.fs{background:#f0a500}
+.prog-bar-fill.exc{background:#28a745}
+
+/* ELEMENTS */
+.elem-section{background:#fff;border-radius:8px;border:1px solid #ddd;margin-bottom:16px;overflow:hidden}
+.elem-header{background:var(--primary);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.elem-header h3{font-size:13px;font-weight:700;flex:1}
+.elem-header .eh-badge{background:rgba(255,255,255,.2);border-radius:12px;padding:3px 10px;font-size:10px;white-space:nowrap}
+.elem-header .eh-toggle{font-size:16px;transition:transform .2s}
+.elem-header.collapsed .eh-toggle{transform:rotate(-90deg)}
+.elem-body{padding:0}
+
+/* STANDARD CARD */
+.std-card{border-bottom:1px solid #eee;padding:14px 18px}
+.std-card:last-child{border-bottom:none}
+.std-card-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+.std-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;margin-top:1px}
+.std-icon.crit{background:#fdecea}
+.std-icon.nc{background:#e8f4fd}
+.std-info{flex:1}
+.std-name{font-size:11px;font-weight:700;color:#1a1a1a;margin-bottom:4px}
+.std-freq{display:inline-block;font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;background:var(--freq-bg);color:var(--freq-color);margin-bottom:6px}
+.std-targets{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.target-box{border-radius:6px;padding:8px 10px;font-size:10px;line-height:1.6}
+.target-box.fs{background:#fffdf5;border:1px solid #ffe8a0}
+.target-box.exc{background:#f6fff8;border:1px solid #a0e0b0}
+.target-box .tb-label{font-size:9px;font-weight:700;margin-bottom:3px}
+.target-box.fs .tb-label{color:#856404}
+.target-box.exc .tb-label{color:#155724}
+
+/* CHECKBOXES */
+.chk-section{background:var(--chk-bg);border-radius:6px;padding:10px 12px;border:1px solid var(--chk-border)}
+.chk-section-label{font-size:9px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px}
+
+.chk-fs-exc{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.chk-fs-exc label{font-size:10px;color:#333;display:flex;align-items:center;gap:7px;cursor:pointer;background:#fff;border-radius:5px;padding:8px 10px;border:1px solid var(--chk-border);transition:filter .1s}
+.chk-fs-exc label.chk-fs-lbl{background:#fffdf5;border-color:#ffe8a0}
+.chk-fs-exc label.chk-exc-lbl{background:#f6fff8;border-color:#a0e0b0}
+.chk-fs-exc label:hover{filter:brightness(.97)}
+.chk-fs-exc label input:checked+span{font-weight:700}
+.chk-fs-exc label.chk-fs-lbl input:checked+span{color:#856404}
+.chk-fs-exc label.chk-exc-lbl input:checked+span{color:#155724}
+
+.chk-qtr-group{display:flex;flex-direction:column;gap:6px}
+.chk-qtr-row{display:grid;grid-template-columns:56px 1fr;gap:8px;align-items:center}
+.chk-qtr-rowlabel{font-size:10px;font-weight:700;padding:5px 6px;border-radius:5px;text-align:center}
+.chk-qtr-rowlabel.fs{background:#fffdf5;color:#856404;border:1px solid #ffe8a0}
+.chk-qtr-rowlabel.exc{background:#f6fff8;color:#155724;border:1px solid #a0e0b0}
+.chk-qtr{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.chk-qtr label{font-size:10px;color:#333;display:flex;align-items:center;justify-content:center;gap:5px;cursor:pointer;background:#fff;border-radius:5px;padding:5px 6px;border:1px solid var(--chk-border);transition:background .1s}
+.chk-qtr label:hover{background:var(--chk-hover)}
+.chk-qtr label.qtr-fs input:checked+span{color:#856404;font-weight:700;text-decoration:line-through}
+.chk-qtr label.qtr-exc input:checked+span{color:#155724;font-weight:700;text-decoration:line-through}
+
+input[type=checkbox]{width:14px;height:14px;cursor:pointer;accent-color:var(--primary);flex-shrink:0}
+.chk-fs-exc .chk-fs-lbl input[type=checkbox]{accent-color:#f0a500}
+.chk-fs-exc .chk-exc-lbl input[type=checkbox]{accent-color:#28a745}
+.chk-qtr .qtr-fs input[type=checkbox]{accent-color:#f0a500}
+.chk-qtr .qtr-exc input[type=checkbox]{accent-color:#28a745}
+
+/* TAGS */
+.tag{font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;display:inline-block;margin-right:4px;margin-bottom:4px}
+.tag.crit{background:#fdecea;color:#7a1f1a}
+.tag.nc{background:#e8f4fd;color:#0c5b8a}
+
+/* PRINT */
+@media print{
+  body{background:#fff}
+  .page{display:none!important}
+  .page.active{display:block!important}
+  .btn-print,.progress-summary,.page-nav{display:none!important}
+  .tracker{max-width:100%;padding:10px}
+  .top-bar{border-radius:0}
+  .elem-body{display:block!important}
+  .elem-header .eh-toggle{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     HOME SCREEN
+     ============================================================ -->
+<div id="home" class="page active">
+  <div class="home-hero">
+    <div class="agency">Department of Veterans Affairs · HROO · HRIS Section</div>
+    <h1>Performance Plan KPI Trackers</h1>
+    <p>Know your standards. Aim for Exceptional. Every element, every day.</p>
+    <div class="fy-badge">Fiscal Year 2026</div>
+  </div>
+
+  <div class="home-intro">
+    <strong>Select your grade level below.</strong> Each tracker breaks down your critical and non-critical performance elements into individual standards. Check the 🟡 Fully Successful box when you meet FS targets, and 🟢 Exceptional when you meet those higher targets. Your progress is tracked live at the top of each page.
+  </div>
+
+  <div class="home-grid">
+
+    <div class="tracker-card" onclick="showTracker('tracker-gs7')">
+      <div class="tc-badge">GS-7</div>
+      <div class="tc-role">HRIS Specialist</div>
+      <div class="tc-desc">Entry-level individual contributor. Foundational HRIS ticket work, dashboards, and customer service.</div>
+      <div class="tc-stats">
+        <span class="tc-stat">5 Elements</span>
+        <span class="tc-stat">16 Standards</span>
+        <span class="tc-stat">4 Critical</span>
+      </div>
+      <button class="tc-open">Open Tracker →</button>
+    </div>
+
+    <div class="tracker-card" onclick="showTracker('tracker-gs12')">
+      <div class="tc-badge">GS-12</div>
+      <div class="tc-role">HRIS Specialist</div>
+      <div class="tc-desc">Mid-level individual contributor. Self-created dashboards, quarterly system audits, and SSU stakeholder engagement.</div>
+      <div class="tc-stats">
+        <span class="tc-stat">5 Elements</span>
+        <span class="tc-stat">21 Standards</span>
+        <span class="tc-stat">4 Critical</span>
+      </div>
+      <button class="tc-open">Open Tracker →</button>
+    </div>
+
+    <div class="tracker-card" onclick="showTracker('tracker-gs13')">
+      <div class="tc-badge">GS-13</div>
+      <div class="tc-role">HRIS Specialist</div>
+      <div class="tc-desc">Senior individual contributor. Includes peer ticket review responsibility (25%/35% monthly) alongside all GS-12 standards.</div>
+      <div class="tc-stats">
+        <span class="tc-stat">5 Elements</span>
+        <span class="tc-stat">22 Standards</span>
+        <span class="tc-stat">4 Critical</span>
+      </div>
+      <button class="tc-open">Open Tracker →</button>
+    </div>
+
+    <div class="tracker-card card-lead" onclick="showTracker('tracker-gs13l')">
+      <div class="tc-badge">GS-13 LEAD</div>
+      <div class="tc-role">HRIS Team Lead</div>
+      <div class="tc-desc">Standards apply to YOU individually AND to your entire team. Higher bar on team ticket review (50%/80% monthly).</div>
+      <div class="tc-stats">
+        <span class="tc-stat">5 Elements</span>
+        <span class="tc-stat">22 Standards</span>
+        <span class="tc-stat">Team Oversight</span>
+      </div>
+      <button class="tc-open">Open Tracker →</button>
+    </div>
+
+  </div>
+
+  <div class="home-footer">
+    FY2026 HRIS Performance Plan · HROO HRIS Section · For internal use only
+  </div>
+</div>
+
+<!-- ============================================================
+     GS-7 TRACKER
+     ============================================================ -->
+<div id="tracker-gs7" class="page tracker-page">
+  <div class="page-nav">
+    <button class="btn-nav" onclick="showHome()">← Back to Home</button>
+  </div>
+  <div class="tracker">
+    <div class="top-bar">
+      <div>
+        <h2>GS-7 HRIS Specialist · FY2026 KPI Tracker</h2>
+        <span>Check 🟡 Fully Successful when you meet FS targets; check 🟢 Exceptional when you meet Exceptional targets.</span>
+      </div>
+      <button class="btn-print" onclick="window.print()">🖨 Print</button>
+    </div>
+    <div class="progress-summary">
+      <h4>📊 My Progress</h4>
+      <div class="prog-grid">
+        <div class="prog-item prog-fs"><div class="pi-num fs-pct">0%</div><div class="pi-label">🟡 FULLY SUCCESSFUL</div><div class="prog-bar"><div class="prog-bar-fill fs fs-bar" style="width:0%"></div></div></div>
+        <div class="prog-item prog-exc"><div class="pi-num exc-pct">0%</div><div class="pi-label">🟢 EXCEPTIONAL</div><div class="prog-bar"><div class="prog-bar-fill exc exc-bar" style="width:0%"></div></div></div>
+        <div class="prog-item"><div class="pi-num done-total">0 / 0</div><div class="pi-label">TOTAL BOXES CHECKED</div></div>
+      </div>
+    </div>
+
+    <!-- GS-7 · Element 1 -->
+    <div class="elem-section">
+      <div class="elem-header" onclick="toggleElem(this)"><h3>Element 1 · Results Driven / System Administration</h3><span class="eh-badge">🔴 CRITICAL</span><span class="eh-toggle">▾</span></div>
+      <div class="elem-body">
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">🎫</div><div class="std-info"><div class="std-name">Standard 1 — yourHR Ticket Completion &amp; SLA</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• <b>80%</b> tickets closed in 4 bus. days<br>• ≥<b>95%</b> no SLA breach · Document complex tickets</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• <b>90%</b> tickets closed in 4 bus. days<br>• ≥<b>98%</b> no SLA breach</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">📧</div><div class="std-info"><div class="std-name">Standard 2 — Customer Communication in yourHR</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• <b>90%</b> tickets with email in 5 bus. days · ≤<b>2</b> standard misses</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• <b>95%</b> tickets with email in 5 bus. days · ≤<b>1</b> standard miss</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">🔁</div><div class="std-info"><div class="std-name">Standard 3 — RFI Follow-Up Process</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• <b>90%</b> RFI tickets with 3-day suspense<br>• Email COB Day 3 · Close Day 4+</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• <b>95%</b> RFI tickets with 3-day suspense<br>• Same closure process</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GS-7 · Element 2 -->
+    <div class="elem-section">
+      <div class="elem-header" onclick="toggleElem(this)"><h3>Element 2 · Business Acumen / Data Analytics</h3><span class="eh-badge">🔴 CRITICAL</span><span class="eh-toggle">▾</span></div>
+      <div class="elem-body">
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">📊</div><div class="std-info"><div class="std-name">Standard 1 — Power BI Dashboards &amp; Reports</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Assist or self-create ≥<b>1</b> published dashboard<br>• Or 1 major enhancement · Tracked in Planner</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Assist or self-create ≥<b>2</b> published dashboards<br>• Or 2 major enhancements</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">🎯</div><div class="std-info"><div class="std-name">Standard 2 — Accuracy &amp; Attention to Detail</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≤<b>3 minor</b> incidents · ≤<b>1 major</b> infraction</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• ≤<b>1 minor</b> incident · <b>0 major</b> infractions</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">📋</div><div class="std-info"><div class="std-name">Standard 3 — Completed Staff Work</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≤<b>3</b> incomplete staff work instances · ≤<b>2</b> element misses</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• ≤<b>1</b> incomplete staff work instance · <b>0</b> element misses</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">⏰</div><div class="std-info"><div class="std-name">Standard 4 — Workload &amp; Project Timelines</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≤<b>3</b> missed assignment deadlines</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• ≤<b>1</b> missed assignment deadline</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">🕐</div><div class="std-info"><div class="std-name">Standard 5 — Timekeeping (GovTA/VATAS)</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≥<b>95%</b> accuracy · Updated before departure<br>• Respond to supervisor in ≤<b>2</b> bus. days</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• ≥<b>99%</b> accuracy · Respond in ≤<b>1</b> bus. day</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GS-7 · Element 3 -->
+    <div class="elem-section">
+      <div class="elem-header" onclick="toggleElem(this)"><h3>Element 3 · Building Coalitions / HRIS Consultation</h3><span class="eh-badge">🔴 CRITICAL</span><span class="eh-toggle">▾</span></div>
+      <div class="elem-body">
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">📦</div><div class="std-info"><div class="std-name">Standard 1 — Workload Distribution</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≥<b>40%</b> of avg team workload<br>• Communicate capacity issues to Lead in advance</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• ≥<b>50%</b> of avg team workload · Proactive self-assignment</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">🤝</div><div class="std-info"><div class="std-name">Standard 2 — Professional Collaboration &amp; Communication</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≤<b>2</b> valid complaints · ≥<b>90%</b> on-time meeting attendance<br>• Formal meetings need agenda · Notify customers of leave</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• <b>0</b> valid complaints · ≥<b>95%</b> on-time meeting attendance</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GS-7 · Element 4 -->
+    <div class="elem-section">
+      <div class="elem-header" onclick="toggleElem(this)"><h3>Element 4 · HROO Customer Service</h3><span class="eh-badge">🔴 CRITICAL</span><span class="eh-toggle">▾</span></div>
+      <div class="elem-body">
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">📨</div><div class="std-info"><div class="std-name">Standard 1a — Inquiry Response &amp; Acknowledgement</div><span class="tag crit">CRITICAL</span><span class="std-freq">Quarterly</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≤<b>3 incidents/quarter</b> — inquiry not acknowledged within 24–48 hrs</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• ≤<b>1 incident/quarter</b> — inquiry not acknowledged</div></div>
+          <div class="chk-section"><div class="chk-section-label">Quarterly Progress</div><div class="chk-qtr-group">
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel fs">🟡 FS</span><div class="chk-qtr"><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel exc">🟢 Exc</span><div class="chk-qtr"><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+          </div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">🚪</div><div class="std-info"><div class="std-name">Standard 1b — Out of Office Setup</div><span class="tag crit">CRITICAL</span><span class="std-freq">Quarterly</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≤<b>3 incidents/quarter</b> — Out of Office not properly set</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• ≤<b>1 incident/quarter</b> — Out of Office not set</div></div>
+          <div class="chk-section"><div class="chk-section-label">Quarterly Progress</div><div class="chk-qtr-group">
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel fs">🟡 FS</span><div class="chk-qtr"><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel exc">🟢 Exc</span><div class="chk-qtr"><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+          </div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">⭐</div><div class="std-info"><div class="std-name">Standard 1c — Customer Complaints <span style="font-weight:400;color:#666">(TMS #4637021 required annually)</span></div><span class="tag crit">CRITICAL</span><span class="std-freq">Quarterly</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≤<b>3 valid customer complaints per quarter</b><br>• Complete TMS #4637021 annually</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• ≤<b>1 valid customer complaint per quarter</b></div></div>
+          <div class="chk-section"><div class="chk-section-label">Quarterly Progress</div><div class="chk-qtr-group">
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel fs">🟡 FS</span><div class="chk-qtr"><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel exc">🟢 Exc</span><div class="chk-qtr"><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+          </div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GS-7 · Element 5 -->
+    <div class="elem-section">
+      <div class="elem-header" onclick="toggleElem(this)"><h3>Element 5 · Change Management / HR Modernization</h3><span class="eh-badge">🔵 NON-CRITICAL</span><span class="eh-toggle">▾</span></div>
+      <div class="elem-body">
+        <div class="std-card"><div class="std-card-top"><div class="std-icon nc">🗂️</div><div class="std-info"><div class="std-name">Standard 1 — HRIS Projects &amp; Planner / AzureDevOps</div><span class="tag nc">NON-CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Update Planner tasks weekly with status summary<br>• ≤<b>3 reminders</b> from Lead/Supervisor all year</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Same weekly updates · ≤<b>1 reminder</b> all year</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon nc">📚</div><div class="std-info"><div class="std-name">Standard 2 — Training &amp; Self-Development</div><span class="tag nc">NON-CRITICAL</span><span class="std-freq">Quarterly</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• <b>0</b> deficient mandatory TMS courses — never on deficiency report</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• All mandatory TMS on time PLUS ≥<b>2 self-dev events/quarter</b> (8/year)</div></div>
+          <div class="chk-section"><div class="chk-section-label">Quarterly Progress</div><div class="chk-qtr-group">
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel fs">🟡 FS</span><div class="chk-qtr"><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel exc">🟢 Exc</span><div class="chk-qtr"><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+          </div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon nc">🌟</div><div class="std-info"><div class="std-name">Standard 3 — Soft Skills &amp; Workplace Maturity</div><span class="tag nc">NON-CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≤<b>3</b> documented valid complaints/incidents</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• ≤<b>1</b> documented valid complaint/incident · Reviewed by supervisor</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================
+     GS-12 TRACKER
+     ============================================================ -->
+<div id="tracker-gs12" class="page tracker-page">
+  <div class="page-nav">
+    <button class="btn-nav" onclick="showHome()">← Back to Home</button>
+  </div>
+  <div class="tracker">
+    <div class="top-bar">
+      <div>
+        <h2>GS-12 HRIS Specialist · FY2026 KPI Tracker</h2>
+        <span>Check 🟡 Fully Successful when you meet FS targets; check 🟢 Exceptional when you meet Exceptional targets.</span>
+      </div>
+      <button class="btn-print" onclick="window.print()">🖨 Print</button>
+    </div>
+    <div class="progress-summary">
+      <h4>📊 My Progress</h4>
+      <div class="prog-grid">
+        <div class="prog-item prog-fs"><div class="pi-num fs-pct">0%</div><div class="pi-label">🟡 FULLY SUCCESSFUL</div><div class="prog-bar"><div class="prog-bar-fill fs fs-bar" style="width:0%"></div></div></div>
+        <div class="prog-item prog-exc"><div class="pi-num exc-pct">0%</div><div class="pi-label">🟢 EXCEPTIONAL</div><div class="prog-bar"><div class="prog-bar-fill exc exc-bar" style="width:0%"></div></div></div>
+        <div class="prog-item"><div class="pi-num done-total">0 / 0</div><div class="pi-label">TOTAL BOXES CHECKED</div></div>
+      </div>
+    </div>
+
+    <!-- GS-12 · Element 1 -->
+    <div class="elem-section">
+      <div class="elem-header" onclick="toggleElem(this)"><h3>Element 1 · Results Driven / System Administration</h3><span class="eh-badge">🔴 CRITICAL</span><span class="eh-toggle">▾</span></div>
+      <div class="elem-body">
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">🎫</div><div class="std-info"><div class="std-name">Standard 1 — yourHR Ticket Completion &amp; SLA</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• <b>80%</b> of tickets closed within 4 business days<br>• ≥<b>95%</b> of tickets with no SLA breach<br>• Complex tickets documented/justified · Keep customer updated</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• <b>90%</b> of tickets closed within 4 business days<br>• ≥<b>98%</b> of tickets with no SLA breach</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">📧</div><div class="std-info"><div class="std-name">Standard 2 — Customer Communication in yourHR</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• <b>90%</b> of tickets have status email sent within 5 business days<br>• No more than <b>2</b> instances where standards are missed</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• <b>95%</b> of tickets have status email within 5 business days<br>• No more than <b>1</b> instance where standards are missed</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">📋</div><div class="std-info"><div class="std-name">Standard 3 — RFI Follow-Up Process</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• <b>90%</b> of RFI tickets include 3-business-day suspense date<br>• Email sent COB Day 3 warning ticket will close<br>• Close on/after Day 4 if no customer response received</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• <b>95%</b> of RFI tickets include proper 3-day suspense<br>• Same Day 3 warning and Day 4+ closure process</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">🔍</div><div class="std-info"><div class="std-name">Standard 4 — HR System Access Audits <span style="font-weight:400;color:#666">(GS-12 Requirement)</span></div><span class="tag crit">CRITICAL</span><span class="std-freq">Quarterly</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Conduct ≥<b>1 quarterly</b> HR system access audit review<br>• Coordinate with stakeholders &amp; route modification forms</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Conduct ≥<b>2 quarterly</b> HR system access audit reviews<br>• One HR enterprise system + one supplemental/local system</div></div>
+          <div class="chk-section"><div class="chk-section-label">Quarterly Progress</div><div class="chk-qtr-group">
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel fs">🟡 FS</span><div class="chk-qtr"><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel exc">🟢 Exc</span><div class="chk-qtr"><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+          </div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GS-12 · Element 2 -->
+    <div class="elem-section">
+      <div class="elem-header" onclick="toggleElem(this)"><h3>Element 2 · Business Acumen / Data Analytics</h3><span class="eh-badge">🔴 CRITICAL</span><span class="eh-toggle">▾</span></div>
+      <div class="elem-body">
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">📊</div><div class="std-info"><div class="std-name">Standard 1 — Power BI Dashboards &amp; Reports <span style="font-weight:400;color:#666">(Self-Created at GS-12)</span></div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Self-create ≥<b>1 published</b> Power BI dashboard (no assist credit)<br>• Or 1 major enhancement · Tracked in MS Planner or AzureDevOps</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Self-create ≥<b>2 published</b> Power BI dashboards<br>• Or 2 major enhancements if no new assignments</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">✅</div><div class="std-info"><div class="std-name">Standard 2 — Accuracy &amp; Attention to Detail</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≤<b>3 minor</b> incidents (typos, formatting, grammar, spelling)<br>• ≤<b>1 major</b> infraction (error affected decision validity)</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• ≤<b>1 minor</b> incident · <b>0 major</b> infractions</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">📝</div><div class="std-info"><div class="std-name">Standard 3 — Completed Staff Work</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≤<b>3</b> valid instances of incomplete staff work or reminders<br>• ≤<b>2</b> instances where element standards are not fully met</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• ≤<b>1</b> valid instance · <b>0</b> element standard misses</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">⏰</div><div class="std-info"><div class="std-name">Standard 4 — Workload &amp; Project Timelines</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≤<b>3</b> missed assignment/project deadlines for the year</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• ≤<b>1</b> missed deadline for the year</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">🕐</div><div class="std-info"><div class="std-name">Standard 5 — Timekeeping (GovTA/VATAS)</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≥<b>95%</b> accuracy · Entries match team calendar and emails<br>• Update before departure/leave · Respond within <b>2 business days</b></div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• ≥<b>99%</b> accuracy · Respond within <b>1 business day</b></div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GS-12 · Element 3 -->
+    <div class="elem-section">
+      <div class="elem-header" onclick="toggleElem(this)"><h3>Element 3 · Building Coalitions / HRIS Consultation</h3><span class="eh-badge">🔴 CRITICAL</span><span class="eh-toggle">▾</span></div>
+      <div class="elem-body">
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">📦</div><div class="std-info"><div class="std-name">Standard 1 — Internal Teamwork &amp; Workload Distribution</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Maintain ≥<b>65%</b> of average team workload<br>• Communicate capacity issues to HRIS Lead well in advance</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Maintain ≥<b>75%</b> of average team workload<br>• Proactively self-assign incoming tickets</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">🏛️</div><div class="std-info"><div class="std-name">Standard 2 — Stakeholder Consultation &amp; Partnerships (SSU) <span style="font-weight:400;color:#666">(GS-12 Requirement)</span></div><span class="tag crit">CRITICAL</span><span class="std-freq">Quarterly</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Proactively engage assigned SSU Leadership ≥<b>1 time/month</b><br>• Use written updates, virtual check-ins, email, Teams<br>• ≤<b>2</b> meetings without detailed agenda</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Meets FS PLUS hold ≥<b>1 formal meeting/month</b> with SSU Leadership<br>• ≤<b>1</b> meeting without a detailed agenda</div></div>
+          <div class="chk-section"><div class="chk-section-label">Quarterly Progress</div><div class="chk-qtr-group">
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel fs">🟡 FS</span><div class="chk-qtr"><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel exc">🟢 Exc</span><div class="chk-qtr"><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+          </div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">🤝</div><div class="std-info"><div class="std-name">Standard 3 — Professional Collaboration &amp; Communication</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≤<b>2</b> valid complaints · ≥<b>90%</b> on-time meeting attendance<br>• Hosted meetings must include agenda · Notify customers of leave</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• <b>0</b> valid complaints · ≥<b>95%</b> on-time meeting attendance</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GS-12 · Element 4 -->
+    <div class="elem-section">
+      <div class="elem-header" onclick="toggleElem(this)"><h3>Element 4 · HROO Customer Service</h3><span class="eh-badge">🔴 CRITICAL</span><span class="eh-toggle">▾</span></div>
+      <div class="elem-body">
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">📨</div><div class="std-info"><div class="std-name">Standard 1a — Inquiry Response &amp; Acknowledgement</div><span class="tag crit">CRITICAL</span><span class="std-freq">Quarterly</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≤<b>3 incidents/quarter</b> — inquiry not acknowledged within 24–48 hrs</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• ≤<b>1 incident/quarter</b> — inquiry not acknowledged</div></div>
+          <div class="chk-section"><div class="chk-section-label">Quarterly Progress</div><div class="chk-qtr-group">
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel fs">🟡 FS</span><div class="chk-qtr"><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel exc">🟢 Exc</span><div class="chk-qtr"><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+          </div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">🚪</div><div class="std-info"><div class="std-name">Standard 1b — Out of Office Setup</div><span class="tag crit">CRITICAL</span><span class="std-freq">Quarterly</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≤<b>3 incidents/quarter</b> — Out of Office not properly set</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• ≤<b>1 incident/quarter</b> — Out of Office not set</div></div>
+          <div class="chk-section"><div class="chk-section-label">Quarterly Progress</div><div class="chk-qtr-group">
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel fs">🟡 FS</span><div class="chk-qtr"><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel exc">🟢 Exc</span><div class="chk-qtr"><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+          </div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">⭐</div><div class="std-info"><div class="std-name">Standard 1c — Customer Complaints <span style="font-weight:400;color:#666">(TMS #4637021 required annually)</span></div><span class="tag crit">CRITICAL</span><span class="std-freq">Quarterly</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≤<b>3 valid customer complaints per quarter</b><br>• Complete TMS #4637021 annually</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• ≤<b>1 valid customer complaint per quarter</b></div></div>
+          <div class="chk-section"><div class="chk-section-label">Quarterly Progress</div><div class="chk-qtr-group">
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel fs">🟡 FS</span><div class="chk-qtr"><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel exc">🟢 Exc</span><div class="chk-qtr"><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+          </div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GS-12 · Element 5 -->
+    <div class="elem-section">
+      <div class="elem-header" onclick="toggleElem(this)"><h3>Element 5 · Change Management / HR Modernization</h3><span class="eh-badge">🔵 NON-CRITICAL</span><span class="eh-toggle">▾</span></div>
+      <div class="elem-body">
+        <div class="std-card"><div class="std-card-top"><div class="std-icon nc">💡</div><div class="std-info"><div class="std-name">Standard 1 — Drive Organizational Innovation <span style="font-weight:400;color:#666">(GS-12 Requirement)</span></div><span class="tag nc">NON-CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Independently design/develop ≥<b>1 published HRIS application</b><br>• MS PowerApp, VA LEAF, or SharePoint · Supervisor-approved</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• <b>More than 1</b> HRIS application published<br>• Or several major system enhancements</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon nc">📅</div><div class="std-info"><div class="std-name">Standard 2 — HRIS Projects &amp; Planner / AzureDevOps Updates</div><span class="tag nc">NON-CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Weekly status updates on all assigned Planner tasks<br>• ≤<b>3 reminders</b> from Supervisor throughout the year</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Same weekly updates · ≤<b>1 reminder</b> all year</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon nc">📚</div><div class="std-info"><div class="std-name">Standard 3 — HR Modernization: SOPs &amp; Desk Guides</div><span class="tag nc">NON-CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Create or update ≥<b>1 SOP or desk guide</b> on assigned areas<br>• ≤<b>2 instances</b> where element standards are not met</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Create or update ≥<b>2 SOPs or desk guides</b><br>• <b>0 instances</b> where element standards are not met</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon nc">🎓</div><div class="std-info"><div class="std-name">Standard 4 — Training &amp; Self-Development</div><span class="tag nc">NON-CRITICAL</span><span class="std-freq">Monthly / Quarterly</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• <b>0 deficient</b> mandatory TMS courses — never appear on deficiency report</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• All mandatory TMS on time PLUS ≥<b>2 self-dev events/quarter</b> (8/year)<br>• Must provide proof of completion</div></div>
+          <div class="chk-section"><div class="chk-section-label">Quarterly Progress</div><div class="chk-qtr-group">
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel fs">🟡 FS</span><div class="chk-qtr"><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel exc">🟢 Exc</span><div class="chk-qtr"><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+          </div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon nc">👥</div><div class="std-info"><div class="std-name">Standard 5 — HRIS Knowledge Sharing &amp; Training Events</div><span class="tag nc">NON-CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≥<b>1 internal</b> HRIS training to HROO HRIS Team<br>• ≥<b>1 cross-training</b> event to HROO Front Office</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• ≥<b>2 internal</b> + ≥<b>2 cross-training</b> events (<b>4+ total</b>)</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon nc">🌟</div><div class="std-info"><div class="std-name">Standard 6 — Soft Skills &amp; Workplace Maturity</div><span class="tag nc">NON-CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≤<b>3</b> documented valid complaints or incidents</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• ≤<b>1</b> documented valid complaint or incident</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================
+     GS-13 TRACKER
+     ============================================================ -->
+<div id="tracker-gs13" class="page tracker-page">
+  <div class="page-nav">
+    <button class="btn-nav" onclick="showHome()">← Back to Home</button>
+  </div>
+  <div class="tracker">
+    <div class="top-bar">
+      <div>
+        <h2>GS-13 HRIS Specialist · FY2026 KPI Tracker</h2>
+        <span>Check 🟡 Fully Successful when you meet FS targets; check 🟢 Exceptional when you meet Exceptional targets.</span>
+      </div>
+      <button class="btn-print" onclick="window.print()">🖨 Print</button>
+    </div>
+    <div class="progress-summary">
+      <h4>📊 My Progress</h4>
+      <div class="prog-grid">
+        <div class="prog-item prog-fs"><div class="pi-num fs-pct">0%</div><div class="pi-label">🟡 FULLY SUCCESSFUL</div><div class="prog-bar"><div class="prog-bar-fill fs fs-bar" style="width:0%"></div></div></div>
+        <div class="prog-item prog-exc"><div class="pi-num exc-pct">0%</div><div class="pi-label">🟢 EXCEPTIONAL</div><div class="prog-bar"><div class="prog-bar-fill exc exc-bar" style="width:0%"></div></div></div>
+        <div class="prog-item"><div class="pi-num done-total">0 / 0</div><div class="pi-label">TOTAL BOXES CHECKED</div></div>
+      </div>
+    </div>
+
+    <!-- GS-13 · Element 1 -->
+    <div class="elem-section">
+      <div class="elem-header" onclick="toggleElem(this)"><h3>Element 1 · Results Driven / System Administration</h3><span class="eh-badge">🔴 CRITICAL</span><span class="eh-toggle">▾</span></div>
+      <div class="elem-body">
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">🎫</div><div class="std-info"><div class="std-name">Standard 1 — yourHR Ticket Completion &amp; SLA</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• <b>80%</b> of tickets closed within 4 business days<br>• ≥<b>95%</b> of tickets with no SLA breach<br>• Complex tickets documented/justified · Keep customer updated</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• <b>90%</b> of tickets closed within 4 business days<br>• ≥<b>98%</b> of tickets with no SLA breach</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">📧</div><div class="std-info"><div class="std-name">Standard 2 — Customer Communication in yourHR</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• <b>90%</b> of tickets have status email sent within 5 business days<br>• No more than <b>2</b> instances where standards are missed</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• <b>95%</b> of tickets have status email within 5 business days<br>• No more than <b>1</b> instance where standards are missed</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">📋</div><div class="std-info"><div class="std-name">Standard 3 — RFI Follow-Up Process</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• <b>90%</b> of RFI tickets include 3-business-day suspense date<br>• Email sent COB Day 3 warning · Close on/after Day 4</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• <b>95%</b> of RFI tickets include proper 3-day suspense<br>• Same Day 3 warning and Day 4+ closure process</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">🔍</div><div class="std-info"><div class="std-name">Standard 4 — HR System Access Audits</div><span class="tag crit">CRITICAL</span><span class="std-freq">Quarterly</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Conduct ≥<b>1 quarterly</b> HR system access audit review<br>• Coordinate with stakeholders &amp; route modification forms</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Conduct ≥<b>2 quarterly</b> HR system access audit reviews<br>• One HR enterprise system + one supplemental/local system</div></div>
+          <div class="chk-section"><div class="chk-section-label">Quarterly Progress</div><div class="chk-qtr-group">
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel fs">🟡 FS</span><div class="chk-qtr"><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel exc">🟢 Exc</span><div class="chk-qtr"><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+          </div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">🔎</div><div class="std-info"><div class="std-name">Standard 5 — Team Ticket Audit / Peer Reviews <span style="font-weight:400;color:#666">(GS-13 Requirement)</span></div><span class="tag crit">CRITICAL</span><span class="std-freq">Quarterly</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Peer review <b>25%</b> of team tickets monthly · Min <b>10/month</b><br>• Provide monthly summary to Supervisor</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Peer review <b>35%</b> of team tickets monthly · Min <b>15/month</b></div></div>
+          <div class="chk-section"><div class="chk-section-label">Quarterly Progress</div><div class="chk-qtr-group">
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel fs">🟡 FS</span><div class="chk-qtr"><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel exc">🟢 Exc</span><div class="chk-qtr"><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+          </div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GS-13 · Element 2 -->
+    <div class="elem-section">
+      <div class="elem-header" onclick="toggleElem(this)"><h3>Element 2 · Business Acumen / Data Analytics</h3><span class="eh-badge">🔴 CRITICAL</span><span class="eh-toggle">▾</span></div>
+      <div class="elem-body">
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">📊</div><div class="std-info"><div class="std-name">Standard 1 — Power BI Dashboards &amp; Reports <span style="font-weight:400;color:#666">(Self-Created at GS-13)</span></div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Self-create ≥<b>1 published</b> Power BI dashboard<br>• Or 1 major enhancement · Tracked in Planner or AzureDevOps</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Self-create ≥<b>2 published</b> Power BI dashboards<br>• Or 2 major enhancements if no new assignments</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">✅</div><div class="std-info"><div class="std-name">Standard 2 — Accuracy &amp; Attention to Detail</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≤<b>3 minor</b> incidents (typos, formatting, grammar)<br>• ≤<b>1 major</b> infraction (error affected decision validity)</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• ≤<b>1 minor</b> incident · <b>0 major</b> infractions</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">📝</div><div class="std-info"><div class="std-name">Standard 3 — Completed Staff Work</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≤<b>3</b> valid instances of incomplete staff work<br>• ≤<b>2</b> instances where element standards are not fully met</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• ≤<b>1</b> valid instance · <b>0</b> element standard misses</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">⏰</div><div class="std-info"><div class="std-name">Standard 4 — Workload &amp; Project Timelines</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≤<b>3</b> missed assignment/project deadlines for the year</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• ≤<b>1</b> missed deadline for the year</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">🕐</div><div class="std-info"><div class="std-name">Standard 5 — Timekeeping (GovTA/VATAS)</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≥<b>95%</b> accuracy · Entries match team calendar and emails<br>• Update before departure/leave · Respond within <b>2 business days</b></div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• ≥<b>99%</b> accuracy · Respond within <b>1 business day</b></div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GS-13 · Element 3 -->
+    <div class="elem-section">
+      <div class="elem-header" onclick="toggleElem(this)"><h3>Element 3 · Building Coalitions / HRIS Consultation</h3><span class="eh-badge">🔴 CRITICAL</span><span class="eh-toggle">▾</span></div>
+      <div class="elem-body">
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">📦</div><div class="std-info"><div class="std-name">Standard 1 — Internal Teamwork &amp; Workload Distribution</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Maintain ≥<b>65%</b> of average team workload<br>• Communicate capacity issues to HRIS Lead well in advance</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Maintain ≥<b>75%</b> of average team workload<br>• Proactively self-assign incoming tickets</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">🏛️</div><div class="std-info"><div class="std-name">Standard 2 — Stakeholder Consultation &amp; Partnerships (SSU) <span style="font-weight:400;color:#666">(GS-13 Requirement)</span></div><span class="tag crit">CRITICAL</span><span class="std-freq">Quarterly</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Proactively engage assigned SSU Leadership ≥<b>1 time/month</b><br>• Use written updates, virtual check-ins, email, Teams<br>• ≤<b>2</b> meetings without detailed agenda</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Meets FS PLUS hold ≥<b>1 formal meeting/month</b> with SSU Leadership<br>• ≤<b>1</b> meeting without a detailed agenda</div></div>
+          <div class="chk-section"><div class="chk-section-label">Quarterly Progress</div><div class="chk-qtr-group">
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel fs">🟡 FS</span><div class="chk-qtr"><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel exc">🟢 Exc</span><div class="chk-qtr"><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+          </div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">🤝</div><div class="std-info"><div class="std-name">Standard 3 — Professional Collaboration &amp; Communication</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≤<b>2</b> valid complaints · ≥<b>90%</b> on-time meeting attendance<br>• Hosted meetings must include agenda</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• <b>0</b> valid complaints · ≥<b>95%</b> on-time meeting attendance</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GS-13 · Element 4 -->
+    <div class="elem-section">
+      <div class="elem-header" onclick="toggleElem(this)"><h3>Element 4 · HROO Customer Service</h3><span class="eh-badge">🔴 CRITICAL</span><span class="eh-toggle">▾</span></div>
+      <div class="elem-body">
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">📨</div><div class="std-info"><div class="std-name">Standard 1a — Inquiry Response &amp; Acknowledgement</div><span class="tag crit">CRITICAL</span><span class="std-freq">Quarterly</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≤<b>3 incidents/quarter</b> — inquiry not acknowledged within 24–48 hrs</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• ≤<b>1 incident/quarter</b> — inquiry not acknowledged</div></div>
+          <div class="chk-section"><div class="chk-section-label">Quarterly Progress</div><div class="chk-qtr-group">
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel fs">🟡 FS</span><div class="chk-qtr"><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel exc">🟢 Exc</span><div class="chk-qtr"><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+          </div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">🚪</div><div class="std-info"><div class="std-name">Standard 1b — Out of Office Setup</div><span class="tag crit">CRITICAL</span><span class="std-freq">Quarterly</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≤<b>3 incidents/quarter</b> — Out of Office not properly set</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• ≤<b>1 incident/quarter</b> — Out of Office not set</div></div>
+          <div class="chk-section"><div class="chk-section-label">Quarterly Progress</div><div class="chk-qtr-group">
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel fs">🟡 FS</span><div class="chk-qtr"><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel exc">🟢 Exc</span><div class="chk-qtr"><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+          </div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">⭐</div><div class="std-info"><div class="std-name">Standard 1c — Customer Complaints <span style="font-weight:400;color:#666">(TMS #4637021 required annually)</span></div><span class="tag crit">CRITICAL</span><span class="std-freq">Quarterly</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≤<b>3 valid customer complaints per quarter</b><br>• Complete TMS #4637021 annually</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• ≤<b>1 valid customer complaint per quarter</b></div></div>
+          <div class="chk-section"><div class="chk-section-label">Quarterly Progress</div><div class="chk-qtr-group">
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel fs">🟡 FS</span><div class="chk-qtr"><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel exc">🟢 Exc</span><div class="chk-qtr"><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+          </div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GS-13 · Element 5 -->
+    <div class="elem-section">
+      <div class="elem-header" onclick="toggleElem(this)"><h3>Element 5 · Change Management / HR Modernization</h3><span class="eh-badge">🔵 NON-CRITICAL</span><span class="eh-toggle">▾</span></div>
+      <div class="elem-body">
+        <div class="std-card"><div class="std-card-top"><div class="std-icon nc">💡</div><div class="std-info"><div class="std-name">Standard 1 — Drive Organizational Innovation <span style="font-weight:400;color:#666">(App Development)</span></div><span class="tag nc">NON-CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Independently design/develop ≥<b>1 published HRIS application</b><br>• MS PowerApp, VA LEAF, or SharePoint · Supervisor-approved</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• <b>More than 1</b> HRIS application published<br>• Or several major system enhancements</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon nc">📅</div><div class="std-info"><div class="std-name">Standard 2 — HRIS Projects &amp; Planner / AzureDevOps Updates</div><span class="tag nc">NON-CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Weekly status updates on all assigned Planner tasks<br>• ≤<b>3 reminders</b> from Supervisor throughout the year</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Same weekly updates · ≤<b>1 reminder</b> all year</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon nc">📚</div><div class="std-info"><div class="std-name">Standard 3 — HR Modernization: SOPs &amp; Desk Guides</div><span class="tag nc">NON-CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Create or update ≥<b>1 SOP or desk guide</b> on assigned areas<br>• ≤<b>2 instances</b> where element standards are not met</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Create or update ≥<b>2 SOPs or desk guides</b><br>• <b>0 instances</b> where element standards are not met</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon nc">🎓</div><div class="std-info"><div class="std-name">Standard 4 — Training &amp; Self-Development</div><span class="tag nc">NON-CRITICAL</span><span class="std-freq">Monthly / Quarterly</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• <b>0 deficient</b> mandatory TMS courses — never appear on deficiency report</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• All mandatory TMS on time PLUS ≥<b>2 self-dev events/quarter</b> (8/year)<br>• Must provide proof of completion</div></div>
+          <div class="chk-section"><div class="chk-section-label">Quarterly Progress</div><div class="chk-qtr-group">
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel fs">🟡 FS</span><div class="chk-qtr"><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel exc">🟢 Exc</span><div class="chk-qtr"><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+          </div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon nc">👥</div><div class="std-info"><div class="std-name">Standard 5 — HRIS Knowledge Sharing &amp; Training Events</div><span class="tag nc">NON-CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≥<b>1 internal</b> HRIS training to HROO HRIS Team<br>• ≥<b>1 cross-training</b> event to HROO Front Office</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• ≥<b>2 internal</b> + ≥<b>2 cross-training</b> events (<b>4+ total</b>)</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon nc">🌟</div><div class="std-info"><div class="std-name">Standard 6 — Soft Skills &amp; Workplace Maturity</div><span class="tag nc">NON-CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• ≤<b>3</b> documented valid complaints or incidents</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• ≤<b>1</b> documented valid complaint or incident</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================
+     GS-13 TEAM LEAD TRACKER
+     ============================================================ -->
+<div id="tracker-gs13l" class="page tracker-page tracker-lead">
+  <div class="page-nav">
+    <button class="btn-nav" onclick="showHome()">← Back to Home</button>
+  </div>
+  <div class="tracker">
+    <div class="top-bar">
+      <div>
+        <h2>GS-13 HRIS Team Lead · FY2026 KPI Tracker</h2>
+        <span>Standards apply to YOU individually AND to your entire team.</span>
+      </div>
+      <button class="btn-print" onclick="window.print()">🖨 Print</button>
+    </div>
+
+    <div class="lead-note">
+      <strong>⭐ LEAD NOTE:</strong> All standards below apply both to you individually AND to every member of your assigned team. Exceptional ratings require the entire team to maintain at minimum Fully Successful on all marked items.
+    </div>
+
+    <div class="progress-summary">
+      <h4>📊 My Progress</h4>
+      <div class="prog-grid">
+        <div class="prog-item prog-fs"><div class="pi-num fs-pct">0%</div><div class="pi-label">🟡 FULLY SUCCESSFUL</div><div class="prog-bar"><div class="prog-bar-fill fs fs-bar" style="width:0%"></div></div></div>
+        <div class="prog-item prog-exc"><div class="pi-num exc-pct">0%</div><div class="pi-label">🟢 EXCEPTIONAL</div><div class="prog-bar"><div class="prog-bar-fill exc exc-bar" style="width:0%"></div></div></div>
+        <div class="prog-item"><div class="pi-num done-total">0 / 0</div><div class="pi-label">TOTAL BOXES CHECKED</div></div>
+      </div>
+    </div>
+
+    <!-- Lead · Element 1 -->
+    <div class="elem-section">
+      <div class="elem-header" onclick="toggleElem(this)"><h3>Element 1 · Results Driven / System Administration</h3><span class="eh-badge">🔴 CRITICAL</span><span class="eh-toggle">▾</span></div>
+      <div class="elem-body">
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">🎫</div><div class="std-info"><div class="std-name">Standard 1 — yourHR Ticket Completion &amp; SLA (Individual + Team)</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Your own: <b>80%</b> of tickets closed within 4 business days<br>• ≥<b>95%</b> no SLA breach · Document complex tickets<br>• Team must also maintain FS minimums</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Your own: <b>90%</b> of tickets in 4 business days<br>• ≥<b>98%</b> no SLA breach · Entire team at minimum FS</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">📧</div><div class="std-info"><div class="std-name">Standard 2 — Customer Communication in yourHR (Individual + Team)</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Your own: <b>90%</b> of tickets have status email within 5 business days<br>• ≤<b>2</b> instances where standards are missed<br>• Team must also meet FS minimums</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Your own: <b>95%</b> of tickets have status email within 5 business days<br>• ≤<b>1</b> instance where standards are missed · Entire team at min FS</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">📋</div><div class="std-info"><div class="std-name">Standard 3 — RFI Follow-Up Process (Individual + Team)</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Your own: <b>90%</b> of RFI tickets include 3-day suspense<br>• Email COB Day 3 · Close on/after Day 4<br>• Team must also meet FS minimums</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Your own: <b>95%</b> of RFI tickets include proper 3-day suspense<br>• Same Day 3 / Day 4+ process · Entire team at min FS</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">🔍</div><div class="std-info"><div class="std-name">Standard 4 — HR System Access Audits (Ensure Team Compliance)</div><span class="tag crit">CRITICAL</span><span class="std-freq">Quarterly</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Ensure each team member completes ≥<b>1 quarterly</b> audit<br>• Route forms for access modifications as needed</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Ensure each member completes ≥<b>2 quarterly</b> audits<br>• One enterprise + one supplemental/local per member</div></div>
+          <div class="chk-section"><div class="chk-section-label">Quarterly Progress</div><div class="chk-qtr-group">
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel fs">🟡 FS</span><div class="chk-qtr"><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel exc">🟢 Exc</span><div class="chk-qtr"><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+          </div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">🔎</div><div class="std-info"><div class="std-name">Standard 5 — Team Ticket Reviews <span style="font-weight:400;color:#666">(Lead-Level — Higher Bar)</span></div><span class="tag crit">CRITICAL</span><span class="std-freq">Quarterly</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Review <b>50%</b> of all team yourHR tickets monthly<br>• Provide monthly summary to HRIS Supervisor</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Review <b>80%</b> of all team yourHR tickets monthly<br>• Monthly summary required</div></div>
+          <div class="chk-section"><div class="chk-section-label">Quarterly Progress</div><div class="chk-qtr-group">
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel fs">🟡 FS</span><div class="chk-qtr"><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel exc">🟢 Exc</span><div class="chk-qtr"><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+          </div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lead · Element 2 -->
+    <div class="elem-section">
+      <div class="elem-header" onclick="toggleElem(this)"><h3>Element 2 · Business Acumen / Data Analytics</h3><span class="eh-badge">🔴 CRITICAL</span><span class="eh-toggle">▾</span></div>
+      <div class="elem-body">
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">📊</div><div class="std-info"><div class="std-name">Standard 1 — Power BI Dashboards &amp; Reports (Ensure Team)</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Ensure each team member self-creates ≥<b>1 published</b> dashboard<br>• Or 1 major enhancement · Tracked in MS Planner or AzureDevOps</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Ensure each team member self-creates ≥<b>2 published</b> dashboards<br>• Or 2 major enhancements if no new assignments</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">✅</div><div class="std-info"><div class="std-name">Standard 2 — Accuracy &amp; Attention to Detail (Individual + Team)</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Your own &amp; team: ≤<b>3 minor</b> incidents<br>• ≤<b>1 major</b> infraction (error affected decision validity)</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Your own &amp; team: ≤<b>1 minor</b> incident · <b>0 major</b> infractions</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">📝</div><div class="std-info"><div class="std-name">Standard 3 — Completed Staff Work (Individual + Team)</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Your own &amp; team: ≤<b>3</b> valid instances of incomplete staff work<br>• ≤<b>2</b> instances where element standards are not fully met</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Your own &amp; team: ≤<b>1</b> valid instance · <b>0</b> element standard misses</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">⏰</div><div class="std-info"><div class="std-name">Standard 4 — Workload &amp; Project Timelines (Individual + Team)</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Your own &amp; team: ≤<b>3</b> missed assignment/project deadlines/year</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Your own &amp; team: ≤<b>1</b> missed deadline for the year</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">🕐</div><div class="std-info"><div class="std-name">Standard 5 — Timekeeping (GovTA/VATAS)</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Your own: ≥<b>95%</b> accuracy · Entries match team calendar/emails<br>• Update before departure/leave · Respond within <b>2 business days</b></div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Your own: ≥<b>99%</b> accuracy · Respond within <b>1 business day</b></div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lead · Element 3 -->
+    <div class="elem-section">
+      <div class="elem-header" onclick="toggleElem(this)"><h3>Element 3 · Building Coalitions / HRIS Consultation</h3><span class="eh-badge">🔴 CRITICAL</span><span class="eh-toggle">▾</span></div>
+      <div class="elem-body">
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">📦</div><div class="std-info"><div class="std-name">Standard 1 — Team Workload Distribution</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Ensure each team member maintains ≥<b>65%</b> of avg workload<br>• Communicate capacity issues to HRIS Supervisor in advance</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Ensure each team member maintains ≥<b>75%</b> of avg workload<br>• Team proactively self-assigns incoming tickets</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">🏛️</div><div class="std-info"><div class="std-name">Standard 2 — Stakeholder Consultation &amp; Partnerships (SSU) (Ensure Team)</div><span class="tag crit">CRITICAL</span><span class="std-freq">Quarterly</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Ensure team: ≥<b>1 proactive engagement/month</b> with SSU Leadership<br>• Written updates, virtual check-ins, email, Teams<br>• ≤<b>2</b> meetings without detailed agenda</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Ensure team: ≥<b>1 formal meeting/month</b> with SSU Leadership<br>• ≤<b>1</b> meeting without detailed agenda</div></div>
+          <div class="chk-section"><div class="chk-section-label">Quarterly Progress</div><div class="chk-qtr-group">
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel fs">🟡 FS</span><div class="chk-qtr"><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel exc">🟢 Exc</span><div class="chk-qtr"><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+          </div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">🤝</div><div class="std-info"><div class="std-name">Standard 3 — Professional Collaboration &amp; Communication (Individual + Team)</div><span class="tag crit">CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Your own &amp; team: ≤<b>2</b> valid complaints<br>• ≥<b>90%</b> on-time meeting attendance · Hosted meetings need agenda</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Your own &amp; team: <b>0</b> valid complaints · ≥<b>95%</b> on-time attendance</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lead · Element 4 -->
+    <div class="elem-section">
+      <div class="elem-header" onclick="toggleElem(this)"><h3>Element 4 · HROO Customer Service</h3><span class="eh-badge">🔴 CRITICAL</span><span class="eh-toggle">▾</span></div>
+      <div class="elem-body">
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">📨</div><div class="std-info"><div class="std-name">Standard 1a — Inquiry Response &amp; Acknowledgement (Individual + Team)</div><span class="tag crit">CRITICAL</span><span class="std-freq">Quarterly</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Your own &amp; team: ≤<b>3 incidents/quarter</b> — inquiry not acknowledged within 24–48 hrs</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Your own &amp; team: ≤<b>1 incident/quarter</b> — inquiry not acknowledged</div></div>
+          <div class="chk-section"><div class="chk-section-label">Quarterly Progress</div><div class="chk-qtr-group">
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel fs">🟡 FS</span><div class="chk-qtr"><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel exc">🟢 Exc</span><div class="chk-qtr"><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+          </div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">🚪</div><div class="std-info"><div class="std-name">Standard 1b — Out of Office Setup (Individual + Team)</div><span class="tag crit">CRITICAL</span><span class="std-freq">Quarterly</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Your own &amp; team: ≤<b>3 incidents/quarter</b> — Out of Office not properly set</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Your own &amp; team: ≤<b>1 incident/quarter</b> — Out of Office not set</div></div>
+          <div class="chk-section"><div class="chk-section-label">Quarterly Progress</div><div class="chk-qtr-group">
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel fs">🟡 FS</span><div class="chk-qtr"><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel exc">🟢 Exc</span><div class="chk-qtr"><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+          </div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon crit">⭐</div><div class="std-info"><div class="std-name">Standard 1c — Customer Complaints <span style="font-weight:400;color:#666">(TMS #4637021 required annually)</span></div><span class="tag crit">CRITICAL</span><span class="std-freq">Quarterly</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Your own &amp; team: ≤<b>3 valid customer complaints per quarter</b><br>• Complete TMS #4637021 annually</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Your own &amp; team: ≤<b>1 valid customer complaint per quarter</b></div></div>
+          <div class="chk-section"><div class="chk-section-label">Quarterly Progress</div><div class="chk-qtr-group">
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel fs">🟡 FS</span><div class="chk-qtr"><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel exc">🟢 Exc</span><div class="chk-qtr"><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+          </div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lead · Element 5 -->
+    <div class="elem-section">
+      <div class="elem-header" onclick="toggleElem(this)"><h3>Element 5 · Change Management / HR Modernization</h3><span class="eh-badge">🔵 NON-CRITICAL</span><span class="eh-toggle">▾</span></div>
+      <div class="elem-body">
+        <div class="std-card"><div class="std-card-top"><div class="std-icon nc">💡</div><div class="std-info"><div class="std-name">Standard 1 — Drive Organizational Innovation <span style="font-weight:400;color:#666">(App Development · Ensure Team)</span></div><span class="tag nc">NON-CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Ensure team: ≥<b>1 HRIS application</b> each in PowerApp / VA LEAF / SharePoint<br>• Published, supervisor-approved, tracked in Planner</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Ensure team: <b>More than 1</b> HRIS application each published<br>• Or several major system enhancements</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon nc">📅</div><div class="std-info"><div class="std-name">Standard 2 — HRIS Projects &amp; Planner / AzureDevOps (Ensure Team)</div><span class="tag nc">NON-CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Ensure team: Weekly Planner updates on all assigned tasks<br>• ≤<b>3 reminders</b> from Supervisor throughout the year</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Ensure team: Same weekly updates · AzureDevOps + Planner both updated<br>• ≤<b>1 reminder</b> all year</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon nc">📚</div><div class="std-info"><div class="std-name">Standard 3 — HR Modernization: SOPs &amp; Desk Guides (Ensure Team)</div><span class="tag nc">NON-CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Ensure team: Each member creates/updates ≥<b>1 SOP or desk guide</b><br>• ≤<b>2 instances</b> where element standards are not met</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Ensure team: Each member creates/updates ≥<b>2 SOPs or desk guides</b><br>• <b>0 instances</b> where element standards are not met</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon nc">🎓</div><div class="std-info"><div class="std-name">Standard 4 — Training &amp; Self-Development (Ensure Team)</div><span class="tag nc">NON-CRITICAL</span><span class="std-freq">Monthly / Quarterly</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Ensure team: <b>0 deficient</b> mandatory TMS courses — never on deficiency report</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Ensure team: All mandatory TMS on time PLUS ≥<b>2 self-dev events/qtr</b> (8/year) per member<br>• Must provide proof of completion</div></div>
+          <div class="chk-section"><div class="chk-section-label">Quarterly Progress</div><div class="chk-qtr-group">
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel fs">🟡 FS</span><div class="chk-qtr"><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-fs"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+            <div class="chk-qtr-row"><span class="chk-qtr-rowlabel exc">🟢 Exc</span><div class="chk-qtr"><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q1</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q2</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q3</span></label><label class="qtr-exc"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>Q4</span></label></div></div>
+          </div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon nc">👥</div><div class="std-info"><div class="std-name">Standard 5 — HRIS Knowledge Sharing &amp; Training Events (Ensure Team)</div><span class="tag nc">NON-CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Ensure team: ≥<b>1 internal</b> HRIS training to HROO HRIS Team per member<br>• ≥<b>1 cross-training</b> event to HROO Front Office per member</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Ensure team: ≥<b>2 internal</b> + ≥<b>2 cross-training</b> events (<b>4+ total</b>) per member</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+        <div class="std-card"><div class="std-card-top"><div class="std-icon nc">🌟</div><div class="std-info"><div class="std-name">Standard 6 — Soft Skills, Conduct &amp; Workplace Maturity</div><span class="tag nc">NON-CRITICAL</span><span class="std-freq">Annual</span></div></div>
+          <div class="std-targets"><div class="target-box fs"><div class="tb-label">🟡 Fully Successful</div>• Your own &amp; team: ≤<b>3</b> documented valid complaints or incidents</div><div class="target-box exc"><div class="tb-label">🟢 Exceptional</div>• Your own &amp; team: ≤<b>1</b> documented valid complaint or incident<br>• Team maintained at minimum FS on all standards</div></div>
+          <div class="chk-section"><div class="chk-section-label">My Progress</div><div class="chk-fs-exc"><label class="chk-fs-lbl"><input type="checkbox" class="chk chk-fs" onchange="updateProgress(this)"><span>🟡 Fully Successful Met</span></label><label class="chk-exc-lbl"><input type="checkbox" class="chk chk-exc" onchange="updateProgress(this)"><span>🟢 Exceptional Met</span></label></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showTracker(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function showHome(){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('home').classList.add('active');
+  window.scrollTo(0,0);
+}
+function updateProgress(el){
+  const tracker=el.closest('.tracker-page');
+  if(!tracker)return;
+  const all=tracker.querySelectorAll('.chk');
+  const fs=tracker.querySelectorAll('.chk.chk-fs');
+  const exc=tracker.querySelectorAll('.chk.chk-exc');
+  const fsDone=[...fs].filter(c=>c.checked).length;
+  const excDone=[...exc].filter(c=>c.checked).length;
+  const allDone=[...all].filter(c=>c.checked).length;
+  const fsPct=fs.length?Math.round(fsDone/fs.length*100):0;
+  const excPct=exc.length?Math.round(excDone/exc.length*100):0;
+  tracker.querySelector('.fs-pct').textContent=fsPct+'%';
+  tracker.querySelector('.exc-pct').textContent=excPct+'%';
+  tracker.querySelector('.fs-bar').style.width=fsPct+'%';
+  tracker.querySelector('.exc-bar').style.width=excPct+'%';
+  tracker.querySelector('.done-total').textContent=allDone+' / '+all.length;
+}
+function toggleElem(hdr){
+  const body=hdr.nextElementSibling;
+  const isCollapsed=hdr.classList.contains('collapsed');
+  if(isCollapsed){body.style.display='block';hdr.classList.remove('collapsed');}
+  else {body.style.display='none';hdr.classList.add('collapsed');}
+}
+// Initialize progress totals for all trackers on load
+window.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('.tracker-page').forEach(tracker=>{
+    const all=tracker.querySelectorAll('.chk');
+    tracker.querySelector('.done-total').textContent='0 / '+all.length;
+  });
+});
+</script>
+</body>
+</html>
